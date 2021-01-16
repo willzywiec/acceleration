@@ -105,30 +105,30 @@ for (i in 1:epochs) {
 
 epoch <- 1
 
-w1fit <- w2fit <- w3fit <- numeric()
+w1fit <- w2fit <- w3fit <- list()
 b1fit <- b2fit <- b3fit <- numeric()
 
 for (i in 1:length(w1[[1]])) {
-  w1fit <- lm(c(w1[[epoch]][i], w1[[epoch + 1]][i]) ~ c(epoch, (epoch + 1)))
+  w1fit[[i]] <- lm(c(w1[[epoch]][i], w1[[epoch + 1]][i]) ~ c(epoch, (epoch + 1)))
 }
 
 for (i in 1:length(w2[[1]])) {
-  w2fit <- lm(c(w2[[epoch]][i], w2[[epoch + 1]][i]) ~ c(epoch, (epoch + 1)))
+  w2fit[[i]] <- lm(c(w2[[epoch]][i], w2[[epoch + 1]][i]) ~ c(epoch, (epoch + 1)))
 }
 
 for (i in 1:length(w3[[1]])) {
-  w3fit <- lm(c(w3[[epoch]][i], w3[[epoch + 1]][i]) ~ c(epoch, (epoch + 1)))
+  w3fit[[i]] <- lm(c(w3[[epoch]][i], w3[[epoch + 1]][i]) ~ c(epoch, (epoch + 1)))
 }
 
 
 for (i in 1:length(b1[[1]])) {
-  b1fit <- lm(c(b1[[epoch]][i], b1[[epoch + 1]][i]) ~ c(epoch, (epoch + 1)))
+  b1fit[[i]] <- lm(c(b1[[epoch]][i], b1[[epoch + 1]][i]) ~ c(epoch, (epoch + 1)))
 }
 
 for (i in 1:length(b2[[1]])) {
-  b2fit <- lm(c(b2[[epoch]][i], b2[[epoch + 1]][i]) ~ c(epoch, (epoch + 1)))
+  b2fit[[i]] <- lm(c(b2[[epoch]][i], b2[[epoch + 1]][i]) ~ c(epoch, (epoch + 1)))
 }
 
 for (i in 1:length(b3[[1]])) {
-  b3fit <- lm(c(b3[[epoch]][i], b3[[epoch + 1]][i]) ~ c(epoch, (epoch + 1)))
+  b3fit[[i]] <- lm(c(b3[[epoch]][i], b3[[epoch + 1]][i]) ~ c(epoch, (epoch + 1)))
 }
