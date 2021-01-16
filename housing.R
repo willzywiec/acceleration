@@ -12,7 +12,9 @@ library(tibble)
 
 epochs <- 10
 
-setwd('C:/Users/Will/Desktop')
+# setwd('C:/Users/Will/Desktop')
+current_path <- dirname(rstudioapi::getSourceEditorContext()$path)
+setwd(current_path)
 
 boston_housing <- dataset_boston_housing()
 
