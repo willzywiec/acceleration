@@ -105,45 +105,30 @@ for (i in 1:epochs) {
 
 epoch <- 1
 
-w1int <- w2int <- w3int <- numeric()
-w1coe <- w2coe <- w3coe <- numeric()
-
-b1int <- b2int <- b3int <- numeric()
-b1coe <- b2coe <- b3coe <- numeric()
+w1fit <- w2fit <- w3fit <- numeric()
+b1fit <- b2fit <- b3fit <- numeric()
 
 for (i in 1:length(w1[[1]])) {
-  fit <- lm(c(w1[[epoch]][i], w1[[epoch + 1]][i]) ~ c(epoch, (epoch + 1)))
-  w1int[i] <- fit$coefficients[1]
-  w1coe[i] <- fit$coefficients[2]
+  w1fit <- lm(c(w1[[epoch]][i], w1[[epoch + 1]][i]) ~ c(epoch, (epoch + 1)))
 }
 
 for (i in 1:length(w2[[1]])) {
-  fit <- lm(c(w2[[epoch]][i], w2[[epoch + 1]][i]) ~ c(epoch, (epoch + 1)))
-  w2int[i] <- fit$coefficients[1]
-  w2coe[i] <- fit$coefficients[2]
+  w2fit <- lm(c(w2[[epoch]][i], w2[[epoch + 1]][i]) ~ c(epoch, (epoch + 1)))
 }
 
 for (i in 1:length(w3[[1]])) {
-  fit <- lm(c(w3[[epoch]][i], w3[[epoch + 1]][i]) ~ c(epoch, (epoch + 1)))
-  w3int[i] <- fit$coefficients[1]
-  w3coe[i] <- fit$coefficients[2]
+  w3fit <- lm(c(w3[[epoch]][i], w3[[epoch + 1]][i]) ~ c(epoch, (epoch + 1)))
 }
 
 
 for (i in 1:length(b1[[1]])) {
-  fit <- lm(c(b1[[epoch]][i], b1[[epoch + 1]][i]) ~ c(epoch, (epoch + 1)))
-  b1int[i] <- fit$coefficients[1]
-  b1coe[i] <- fit$coefficients[2]
+  b1fit <- lm(c(b1[[epoch]][i], b1[[epoch + 1]][i]) ~ c(epoch, (epoch + 1)))
 }
 
 for (i in 1:length(b2[[1]])) {
-  fit <- lm(c(b2[[epoch]][i], b2[[epoch + 1]][i]) ~ c(epoch, (epoch + 1)))
-  b2int[i] <- fit$coefficients[1]
-  b2coe[i] <- fit$coefficients[2]
+  b2fit <- lm(c(b2[[epoch]][i], b2[[epoch + 1]][i]) ~ c(epoch, (epoch + 1)))
 }
 
 for (i in 1:length(b3[[1]])) {
-  fit <- lm(c(b3[[epoch]][i], b3[[epoch + 1]][i]) ~ c(epoch, (epoch + 1)))
-  b3int[i] <- fit$coefficients[1]
-  b3coe[i] <- fit$coefficients[2]
+  b3fit <- lm(c(b3[[epoch]][i], b3[[epoch + 1]][i]) ~ c(epoch, (epoch + 1)))
 }
