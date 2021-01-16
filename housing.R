@@ -109,26 +109,38 @@ w1fit <- w2fit <- w3fit <- list()
 b1fit <- b2fit <- b3fit <- list()
 
 for (i in 1:length(w1[[1]])) {
-  w1fit[[i]] <- lm(c(w1[[epoch]][i], w1[[epoch + 1]][i]) ~ c(epoch, (epoch + 1)))
+  x <- c(epoch, (epoch + 1))
+  y <- c(w1[[epoch]][i], w1[[epoch + 1]][i])
+  w1fit[[i]] <- lm(y ~ x)
 }
 
 for (i in 1:length(w2[[1]])) {
-  w2fit[[i]] <- lm(c(w2[[epoch]][i], w2[[epoch + 1]][i]) ~ c(epoch, (epoch + 1)))
+  x <- c(epoch, (epoch + 1))
+  y <- c(w2[[epoch]][i], w2[[epoch + 1]][i])
+  w2fit[[i]] <- lm(y ~ x)
 }
 
 for (i in 1:length(w3[[1]])) {
-  w3fit[[i]] <- lm(c(w3[[epoch]][i], w3[[epoch + 1]][i]) ~ c(epoch, (epoch + 1)))
+  x <- c(epoch, (epoch + 1))
+  y <- c(w3[[epoch]][i], w3[[epoch + 1]][i])
+  w3fit[[i]] <- lm(y ~ x)
 }
 
 
 for (i in 1:length(b1[[1]])) {
-  b1fit[[i]] <- lm(c(b1[[epoch]][i], b1[[epoch + 1]][i]) ~ c(epoch, (epoch + 1)))
+  x <- c(epoch, (epoch + 1))
+  y <- c(b1[[epoch]][i], b1[[epoch + 1]][i])
+  b1fit[[i]] <- lm(y ~ x)
 }
 
 for (i in 1:length(b2[[1]])) {
-  b2fit[[i]] <- lm(c(b2[[epoch]][i], b2[[epoch + 1]][i]) ~ c(epoch, (epoch + 1)))
+  x <- c(epoch, (epoch + 1))
+  y <- c(b2[[epoch]][i], b2[[epoch + 1]][i])
+  b2fit[[i]] <- lm(y ~ x)
 }
 
 for (i in 1:length(b3[[1]])) {
-  b3fit[[i]] <- lm(c(b3[[epoch]][i], b3[[epoch + 1]][i]) ~ c(epoch, (epoch + 1)))
+  x <- c(epoch, (epoch + 1))
+  y <- c(b3[[epoch]][i], b3[[epoch + 1]][i])
+  b3fit[[i]] <- lm(y ~ x)
 }
