@@ -106,7 +106,7 @@ for (i in 1:epochs) {
 epoch <- 1
 
 w1fit <- w2fit <- w3fit <- list()
-b1fit <- b2fit <- b3fit <- numeric()
+b1fit <- b2fit <- b3fit <- list()
 
 for (i in 1:length(w1[[1]])) {
   w1fit[[i]] <- lm(c(w1[[epoch]][i], w1[[epoch + 1]][i]) ~ c(epoch, (epoch + 1)))
