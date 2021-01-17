@@ -12,7 +12,7 @@ library(tibble)
 
 epochs <- 10
 
-setwd('C:/Users/Will/Desktop')
+# setwd('C:/Users/Will/Desktop')
 
 boston_housing <- dataset_boston_housing()
 
@@ -103,44 +103,63 @@ for (i in 1:epochs) {
 
 }
 
+Forecast <- function(w1, b1, w2, b2, w3, b3, epoch, distance) {
+
+  w1fit <- w2fit <- w3fit <- numeric()
+  b1fit <- b2fit <- b3fit <- numeric()
+
+  for (i in 1:length(w1[[1]])) {
+    x <- c(epoch, (epoch + 1))
+    y <- c(w1[[epoch]][i], w1[[epoch + 1]][i])
+    w1fit[i] <- predict(lm(y ~ x), distance)
+  }
+
+  for (i in 1:length(w2[[1]])) {
+    x <- c(epoch, (epoch + 1))
+    y <- c(w2[[epoch]][i], w2[[epoch + 1]][i])
+    w2fit[i] <- predict(lm(y ~ x), distance)
+  }
+
+  for (i in 1:length(w3[[1]])) {
+    x <- c(epoch, (epoch + 1))
+    y <- c(w3[[epoch]][i], w3[[epoch + 1]][i])
+    w3fit[i] <- predict(lm(y ~ x), distance)
+  }
+
+  for (i in 1:length(b1[[1]])) {
+    x <- c(epoch, (epoch + 1))
+    y <- c(b1[[epoch]][i], b1[[epoch + 1]][i])
+    b1fit[i] <- predict(lm(y ~ x), distance)
+  }
+
+  for (i in 1:length(b2[[1]])) {
+    x <- c(epoch, (epoch + 1))
+    y <- c(b2[[epoch]][i], b2[[epoch + 1]][i])
+    b2fit[i] <- predict(lm(y ~ x), distance)
+  }
+
+  for (i in 1:length(b3[[1]])) {
+    x <- c(epoch, (epoch + 1))
+    y <- c(b3[[epoch]][i], b3[[epoch + 1]][i])
+    b3fit[i] <- predict(lm(y ~ x), distance)
+  }
+  
+  w1fit <- matrix(w1fit, nrow = 13, ncol = 64)
+  w2fit <- matrix(w2fit, nrow = 64, ncol = 64)
+  w3fit <- matrix(w3fit, nrow = 64, ncol = 1)
+  
+  b1fit <- array(b1fit)
+  b2fit <- array(b2fit)
+  b3fit <- array(b3fit)
+  
+  return(list(w1fit, b1fit, w2fit, b2fit, w3fit, b3fit))
+  
+}
+
 epoch <- 1
+distance <- data.frame(x = 5)
 
-w1fit <- w2fit <- w3fit <- list()
-b1fit <- b2fit <- b3fit <- list()
+weight.predictions <- Forecast(w1, b1, w2, b2, w3, b3, epoch, distance)
+weight.predictions
 
-for (i in 1:length(w1[[1]])) {
-  x <- c(epoch, (epoch + 1))
-  y <- c(w1[[epoch]][i], w1[[epoch + 1]][i])
-  w1fit[[i]] <- lm(y ~ x)
-}
-
-for (i in 1:length(w2[[1]])) {
-  x <- c(epoch, (epoch + 1))
-  y <- c(w2[[epoch]][i], w2[[epoch + 1]][i])
-  w2fit[[i]] <- lm(y ~ x)
-}
-
-for (i in 1:length(w3[[1]])) {
-  x <- c(epoch, (epoch + 1))
-  y <- c(w3[[epoch]][i], w3[[epoch + 1]][i])
-  w3fit[[i]] <- lm(y ~ x)
-}
-
-
-for (i in 1:length(b1[[1]])) {
-  x <- c(epoch, (epoch + 1))
-  y <- c(b1[[epoch]][i], b1[[epoch + 1]][i])
-  b1fit[[i]] <- lm(y ~ x)
-}
-
-for (i in 1:length(b2[[1]])) {
-  x <- c(epoch, (epoch + 1))
-  y <- c(b2[[epoch]][i], b2[[epoch + 1]][i])
-  b2fit[[i]] <- lm(y ~ x)
-}
-
-for (i in 1:length(b3[[1]])) {
-  x <- c(epoch, (epoch + 1))
-  y <- c(b3[[epoch]][i], b3[[epoch + 1]][i])
-  b3fit[[i]] <- lm(y ~ x)
-}
+new.model <- set_weights(build_model('mean_squared_error'), weight.predictions)
