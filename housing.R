@@ -10,7 +10,7 @@ library(keras)
 library(magrittr)
 library(tibble)
 
-epochs <- 10
+epochs <- 500
 
 # setwd('C:/Users/Will/Desktop')
 
@@ -77,33 +77,33 @@ history <- model %>% fit(
   train_data,
   train_labels,
   epochs = epochs,
-  shuffle = FALSE,
+  # shuffle = FALSE,
   validation_split = 0.2,
   verbose = TRUE,
-  callbacks = list(loss.history, weight.history)
-)
+  callbacks = list(loss.history, weight.history))
 
 # test_predictions <- model %>% predict(test_data)
 
-w1 <- w2 <- w3 <- list()
-b1 <- b2 <- b3 <- list()
-
-for (i in 1:epochs) {
-
-  for (j in 1:6) {
-
-    if (j == 1) w1[[i]] <- weight.history$weight[[(i - 1) * 6 + j]] %>% as.numeric()
-    if (j == 2) b1[[i]] <- weight.history$weight[[(i - 1) * 6 + j]] %>% as.numeric()
-    if (j == 3) w2[[i]] <- weight.history$weight[[(i - 1) * 6 + j]] %>% as.numeric()
-    if (j == 4) b2[[i]] <- weight.history$weight[[(i - 1) * 6 + j]] %>% as.numeric()
-    if (j == 5) w3[[i]] <- weight.history$weight[[(i - 1) * 6 + j]] %>% as.numeric()
-    if (j == 6) b3[[i]] <- weight.history$weight[[(i - 1) * 6 + j]] %>% as.numeric()
-
+# forecast weights and biases
+Forecast <- function(weight.history, epoch, distance) {
+  
+  w1 <- w2 <- w3 <- list()
+  b1 <- b2 <- b3 <- list()
+  
+  for (i in 1:(epoch + 1)) {
+    
+    for (j in 1:6) {
+      
+      if (j == 1) w1[[i]] <- weight.history$weight[[(i - 1) * 6 + j]] %>% as.numeric()
+      if (j == 2) b1[[i]] <- weight.history$weight[[(i - 1) * 6 + j]] %>% as.numeric()
+      if (j == 3) w2[[i]] <- weight.history$weight[[(i - 1) * 6 + j]] %>% as.numeric()
+      if (j == 4) b2[[i]] <- weight.history$weight[[(i - 1) * 6 + j]] %>% as.numeric()
+      if (j == 5) w3[[i]] <- weight.history$weight[[(i - 1) * 6 + j]] %>% as.numeric()
+      if (j == 6) b3[[i]] <- weight.history$weight[[(i - 1) * 6 + j]] %>% as.numeric()
+      
+    }
+    
   }
-
-}
-
-Forecast <- function(w1, b1, w2, b2, w3, b3, epoch, distance) {
 
   w1fit <- w2fit <- w3fit <- numeric()
   b1fit <- b2fit <- b3fit <- numeric()
@@ -156,10 +156,30 @@ Forecast <- function(w1, b1, w2, b2, w3, b3, epoch, distance) {
   
 }
 
-epoch <- 1
-distance <- data.frame(x = 5)
+new.model <- build_model('mean_squared_error')
 
-weight.predictions <- Forecast(w1, b1, w2, b2, w3, b3, epoch, distance)
-weight.predictions
+loss.history <- LossHistory$new()
+weight.history <- WeightHistory$new()
 
+# fit new model
+new.history <- new.model %>% fit(train_data, train_labels, epochs = 10, validation_split = 0.2, verbose = TRUE, callbacks = list(loss.history, weight.history))
+weight.predictions <- Forecast(weight.history, 9, data.frame(x = 10))
 new.model <- set_weights(build_model('mean_squared_error'), weight.predictions)
+
+new.history <- new.model %>% fit(train_data, train_labels, epochs = 10, validation_split = 0.2, verbose = TRUE, callbacks = list(loss.history, weight.history))
+weight.predictions <- Forecast(weight.history, 9, data.frame(x = 20))
+new.model <- set_weights(build_model('mean_squared_error'), weight.predictions)
+
+new.history <- new.model %>% fit(train_data, train_labels, epochs = 10, validation_split = 0.2, verbose = TRUE, callbacks = list(loss.history, weight.history))
+weight.predictions <- Forecast(weight.history, 9, data.frame(x = 40))
+new.model <- set_weights(build_model('mean_squared_error'), weight.predictions)
+
+new.history <- new.model %>% fit(train_data, train_labels, epochs = 10, validation_split = 0.2, verbose = TRUE, callbacks = list(loss.history, weight.history))
+weight.predictions <- Forecast(weight.history, 9, data.frame(x = 90))
+new.model <- set_weights(build_model('mean_squared_error'), weight.predictions)
+
+new.history <- new.model %>% fit(train_data, train_labels, epochs = 10, validation_split = 0.2, verbose = TRUE, callbacks = list(loss.history, weight.history))
+weight.predictions <- Forecast(weight.history, 9, data.frame(x = 290))
+new.model <- set_weights(build_model('mean_squared_error'), weight.predictions)
+
+new.history <- new.model %>% fit(train_data, train_labels, epochs = 1, validation_split = 0.2, verbose = TRUE, callbacks = list(loss.history, weight.history))
