@@ -10,7 +10,7 @@ library(keras)
 library(magrittr)
 library(tibble)
 
-epochs <- 500
+epochs <- 10
 
 # setwd('C:/Users/Will/Desktop')
 
@@ -167,19 +167,3 @@ weight.predictions <- Forecast(weight.history, 9, data.frame(x = 10))
 new.model <- set_weights(build_model('mean_squared_error'), weight.predictions)
 
 new.history <- new.model %>% fit(train_data, train_labels, epochs = 10, validation_split = 0.2, verbose = TRUE, callbacks = list(loss.history, weight.history))
-weight.predictions <- Forecast(weight.history, 9, data.frame(x = 20))
-new.model <- set_weights(build_model('mean_squared_error'), weight.predictions)
-
-new.history <- new.model %>% fit(train_data, train_labels, epochs = 10, validation_split = 0.2, verbose = TRUE, callbacks = list(loss.history, weight.history))
-weight.predictions <- Forecast(weight.history, 9, data.frame(x = 40))
-new.model <- set_weights(build_model('mean_squared_error'), weight.predictions)
-
-new.history <- new.model %>% fit(train_data, train_labels, epochs = 10, validation_split = 0.2, verbose = TRUE, callbacks = list(loss.history, weight.history))
-weight.predictions <- Forecast(weight.history, 9, data.frame(x = 90))
-new.model <- set_weights(build_model('mean_squared_error'), weight.predictions)
-
-new.history <- new.model %>% fit(train_data, train_labels, epochs = 10, validation_split = 0.2, verbose = TRUE, callbacks = list(loss.history, weight.history))
-weight.predictions <- Forecast(weight.history, 9, data.frame(x = 290))
-new.model <- set_weights(build_model('mean_squared_error'), weight.predictions)
-
-new.history <- new.model %>% fit(train_data, train_labels, epochs = 1, validation_split = 0.2, verbose = TRUE, callbacks = list(loss.history, weight.history))

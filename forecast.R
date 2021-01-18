@@ -8,9 +8,8 @@ cat('\014')
 library(ggplot2)
 library(keras)
 library(magrittr)
+library(mgcv)
 library(tibble)
-
-epochs <- 10
 
 # setwd('C:/Users/Will/Desktop')
 
@@ -49,8 +48,6 @@ SSE <- function(y_true, y_pred) k_sum(k_pow(y_true - y_pred, 2))
 
 model <- build_model('mean_squared_error') # SSE
 
-initial.weight <- get_weights
-
 model %>% summary()
 
 LossHistory <- R6::R6Class('LossHistory',
@@ -69,65 +66,64 @@ WeightHistory <- R6::R6Class('WeightHistory',
                                   self$weight <- c(self$weight, get_weights(model))
                                 }))
 
+# forecast weights and biases
+Forecast <- function(distance, epochs, points, weight.history) {
+
+  weight.length <- length(weight.history$weight)
+
+  layers <- weight.length / epochs
+
+  weight.forecast <- list()
+
+  for (i in 1:layers) {
+
+    # w1 <- weight.history$weight[[length(weight.history$weight) - 2 * layers + i]] %>% as.numeric()
+    # w2 <- weight.history$weight[[length(weight.history$weight) - layers + i]] %>% as.numeric()
+    
+    w <- weight.history$weight[seq(i, weight.length, layers)]
+
+    fit <- numeric()
+
+    for (j in 1:length(w[[1]])) {
+      x <- c((epochs - points + 1):epochs)
+      y <- unlist(lapply(w, '[[', j))
+      y <- y[(epochs - points + 1):epochs]
+      fit[j] <- predict(lm(y ~ x), epochs + distance)
+      # fit[j] <- predict(gam(y ~ s(x)), epochs + distance)
+    }
+
+    if (i %% 2 != 0) {
+      fit <- matrix(fit, nrow = dim(weight.history$weight[[weight.length - layers + i]])[1], ncol = dim(weight.history$weight[[weight.length - layers + i]])[2])
+    } else {
+      fit <- array(fit)
+    }
+
+    weight.forecast[[i]] <- fit
+
+  }
+
+  return(weight.forecast)
+
+}
+
 loss.history <- LossHistory$new()
 weight.history <- WeightHistory$new()
+
+epochs <- 50
+points <- 20
 
 # fit model
 history <- model %>% fit(
   train_data,
   train_labels,
   epochs = epochs,
-  # shuffle = FALSE,
   validation_split = 0.2,
   verbose = TRUE,
   callbacks = list(loss.history, weight.history))
 
-# test_predictions <- model %>% predict(test_data)
+weight.forecast <- Forecast(data.frame(x = 50), epochs, points, weight.history)
+set_weights(model, weight.forecast)
 
-# forecast weights and biases
-Forecast <- function(distance, epochs, weight.history) {
+new.history <- model %>% fit(train_data, train_labels, epochs = 50, validation_split = 0.2, verbose = TRUE, callbacks = list(loss.history, weight.history))
 
-  layers <- length(weight.history) / epochs
-
-  weights <- fits <- list()
-
-  j <- 0
-
-  for (i in 1:layers) {
-
-    weights[[i]] <- c(weight.history$weight[[epochs - 2 * layers + j]] %>% as.numeric(), weight.history$weight[[epochs - layers + j]] %>% as.numeric())
-
-    print(weights)
-    
-    x <- c((epochs - 1), epochs)
-    y <- weights[[i]]
-
-    fits[[i]] <- predict(lm(y ~ x), distance)
-
-    if (i %% 2 != 0) {
-      fits[[i]] <- matrix(fits[[i]], nrow = dim(weight.history$weight[[epochs - layers + j]][1]), ncol = dim(weight.history$weight[[epochs - layers + j]])[2])
-    } else {
-      fits[[i]] <- array(fits[[i]])
-    }
-
-    j <- j + 1
-
-  }
-
-  return(fits)
-
-}
-
-new.model <- build_model('mean_squared_error')
-
-loss.history <- LossHistory$new()
-weight.history <- WeightHistory$new()
-
-# fit new model
-new.history <- new.model %>% fit(train_data, train_labels, epochs = 10, validation_split = 0.2, verbose = TRUE, callbacks = list(loss.history, weight.history))
-
-weight.forecast <- Forecast(data.frame(x = 10), 10, weight.history)
-
-new.model <- set_weights(build_model('mean_squared_error'), weight.forecast)
-
-new.history <- new.model %>% fit(train_data, train_labels, epochs = 10, validation_split = 0.2, verbose = TRUE, callbacks = list(loss.history, weight.history))
+plot(unlist(weight.history$weight[seq(6, length(weight.history$weight), 6)]), pch = 20)
