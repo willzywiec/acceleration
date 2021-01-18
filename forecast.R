@@ -109,7 +109,7 @@ Forecast <- function(distance, epochs, points, weight.history) {
 loss.history <- LossHistory$new()
 weight.history <- WeightHistory$new()
 
-epochs <- 50
+epochs <- 100
 points <- 20
 
 # fit model
