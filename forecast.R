@@ -38,7 +38,7 @@ build_model <- function(loss) {
     layer_dense(units = 1)
   model %>% compile(
     loss = loss,
-    optimizer = optimizer_rmsprop(),
+    optimizer = optimizer_rmsprop(), # default learning rate = 0.001
     # optimizer = optimizer_sgd(),
     metrics = list('mean_absolute_error'))
   model
@@ -67,7 +67,7 @@ WeightHistory <- R6::R6Class('WeightHistory',
                                 }))
 
 # forecast weights and biases
-Forecast <- function(distance, epochs, points, weight.history) {
+Forecast <- function(distance, epochs, points, mode, weight.history) {
 
   weight.length <- length(weight.history$weight)
 
@@ -77,19 +77,22 @@ Forecast <- function(distance, epochs, points, weight.history) {
 
   for (i in 1:layers) {
 
-    # w1 <- weight.history$weight[[length(weight.history$weight) - 2 * layers + i]] %>% as.numeric()
-    # w2 <- weight.history$weight[[length(weight.history$weight) - layers + i]] %>% as.numeric()
-    
     w <- weight.history$weight[seq(i, weight.length, layers)]
 
     fit <- numeric()
 
     for (j in 1:length(w[[1]])) {
+      
       x <- c((epochs - points + 1):epochs)
       y <- unlist(lapply(w, '[[', j))
       y <- y[(epochs - points + 1):epochs]
-      fit[j] <- predict(lm(y ~ x), epochs + distance)
-      # fit[j] <- predict(gam(y ~ s(x)), epochs + distance)
+      
+      if (mode == 'lm') {
+        fit[j] <- predict(lm(y ~ x), epochs + distance)
+      } else if (mode == 'gam') {
+        fit[j] <- predict(gam(y ~ s(x)), epochs + distance)
+      }
+      
     }
 
     if (i %% 2 != 0) {
@@ -109,21 +112,44 @@ Forecast <- function(distance, epochs, points, weight.history) {
 loss.history <- LossHistory$new()
 weight.history <- WeightHistory$new()
 
-epochs <- 100
-points <- 20
+loop <- TRUE
 
-# fit model
-history <- model %>% fit(
-  train_data,
-  train_labels,
-  epochs = epochs,
-  validation_split = 0.2,
-  verbose = TRUE,
-  callbacks = list(loss.history, weight.history))
+if (loop == TRUE) {
+  
+  epochs <- 50
+  
+  # start timer
+  ptm <- proc.time()
+  
+  # fit model
+  history <- model %>% fit(train_data, train_labels, epochs = epochs, validation_split = 0.2, shuffle = FALSE, verbose = TRUE, callbacks = list(loss.history, weight.history))
+  
+  # forecast         Forecast(distance, epochs, points, mode, weight.history)
+  weight.forecast <- Forecast(data.frame(x = 50), epochs, 15, 'lm', weight.history)
+  set_weights(model, weight.forecast)
+  new.history <- model %>% fit(train_data, train_labels, epochs = 20, validation_split = 0.2, verbose = TRUE, callbacks = list(loss.history, weight.history))
 
-weight.forecast <- Forecast(data.frame(x = 50), epochs, points, weight.history)
-set_weights(model, weight.forecast)
+  proc.time() - ptm
+  
+} else {
+  
+  epochs <- 100
+  
+  # start timer
+  ptm <- proc.time()
+  
+  # fit model
+  history <- model %>% fit(train_data, train_labels, epochs = epochs, validation_split = 0.2, verbose = TRUE, callbacks = list(loss.history, weight.history))
+  
+  proc.time() - ptm
+  
+}
 
-new.history <- model %>% fit(train_data, train_labels, epochs = 50, validation_split = 0.2, verbose = TRUE, callbacks = list(loss.history, weight.history))
+test <- unlist(weight.history$weight[seq(6, length(weight.history$weight), 6)])
+testy <- data.frame(x = 1:70, y = test)
+testy <- head(testy, -20)
 
-plot(unlist(weight.history$weight[seq(6, length(weight.history$weight), 6)]), pch = 20)
+# ggplot(testy, aes(x, y)) + geom_point() + geom_smooth(method = gam, formula = y ~ s(x), se = FALSE)
+
+plot(test, pch = 20)
+# plot(unlist(weight.history$weight[seq(1, length(weight.history$weight), 6)]), pch = 20)
